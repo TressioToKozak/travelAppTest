@@ -67,6 +67,8 @@ let activeInfoCode = null;
 
 const escapeHtml = value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 const flagUrl = code => `https://flagsapi.com/${code}/flat/64.png`;
+const fallbackImage = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#174c37"/><stop offset="1" stop-color="#d9f34a"/></linearGradient></defs><rect width="900" height="700" fill="url(#g)"/><circle cx="720" cy="120" r="130" fill="#ffffff33"/><path d="M120 520c130-160 245-205 345-135 82 58 155 47 315-112v247H120Z" fill="#f8f7f288"/><text x="70" y="120" font-family="Arial" font-size="54" font-weight="700" fill="#f8f7f2">Travia</text></svg>')}`;
+const tripImageUrl = (city, country, code, date) => `https://source.unsplash.com/900x700/?${encodeURIComponent(`${city} ${country} travel city`)}`;
 const currentMonth = new Date().toISOString().slice(0, 7);
 const monthNames = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
 $('#tripMonth').innerHTML = monthNames.map((month, index) => `<option value="${String(index + 1).padStart(2, '0')}">${month}</option>`).join('');
@@ -142,6 +144,11 @@ function openCountryFromMap(code) {
   showCountryInfo(normalizeCountryCode(code));
 }
 
+
+const ratingLabels = { priceRating: 'Ceny', safetyRating: 'Bezpieczeństwo', atmosphereRating: 'Klimat' };
+const ratingDots = value => value ? '●'.repeat(Number(value)) + '○'.repeat(5 - Number(value)) : '';
+const renderTripRatings = trip => ['priceRating', 'safetyRating', 'atmosphereRating'].filter(key => trip[key]).map(key => `<span>${ratingLabels[key]} ${ratingDots(trip[key])}</span>`).join('');
+
 function renderCards(items = visitedCountries) {
   visibleCards = items;
   if (!items.length) {
@@ -151,10 +158,10 @@ function renderCards(items = visitedCountries) {
   }
   grid.innerHTML = items.map((country, index) => `
     <article class="country-card" style="--delay:${index * 80}ms" tabindex="0" data-card-index="${index}">
-      <img src="${country.image}" alt="${escapeHtml(country.place)}, ${escapeHtml(country.name)}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80'" />
+      <img src="${country.image}" alt="${escapeHtml(country.place)}, ${escapeHtml(country.name)}" onerror="this.onerror=null;this.src='${fallbackImage}'" />
       <div class="card-shade"></div>
       <span class="flag"><img src="${flagUrl(country.code)}" alt="Flaga kraju ${escapeHtml(country.name)}" /></span>
-      <div class="card-copy"><span>${country.recommended ? 'POLECANE DLA CIEBIE' : `${isCompleted(country) ? 'ODWIEDZONE' : 'ZAPLANOWANE'} · ${escapeHtml(formatMonth(country))}`}</span><h3>${escapeHtml(country.name)}</h3><p>${escapeHtml(country.place)}</p></div>
+      <div class="card-copy"><span>${country.recommended ? 'POLECANE DLA CIEBIE' : `${isCompleted(country) ? 'ODWIEDZONE' : 'ZAPLANOWANE'} · ${escapeHtml(formatMonth(country))}`}</span><h3>${escapeHtml(country.name)}</h3><p>${escapeHtml(country.place)}</p>${country.recommended ? '' : `<div class="card-ratings">${renderTripRatings(country)}</div>`}</div>
       <button type="button" aria-label="Zobacz szczegóły: ${escapeHtml(country.name)}">↗</button>
     </article>`).join('');
 }
@@ -189,6 +196,20 @@ const fallbackFacts = {
   IS: { capital: 'Reykjavík', currency: 'korona islandzka (ISK)', languages: 'islandzki', population: 'ok. 390 tys.', latlng: [65, -18] },
   IT: { capital: 'Rzym', currency: 'euro (EUR)', languages: 'włoski', population: 'ok. 59 mln', latlng: [42.8, 12.8] },
   JP: { capital: 'Tokio', currency: 'jen (JPY)', languages: 'japoński', population: 'ok. 124 mln', latlng: [36, 138] },
+
+  KE: { capital: 'Nairobi', currency: 'szyling kenijski (KES)', languages: 'suahili, angielski', population: 'ok. 55 mln', latlng: [1, 38] },
+  TZ: { capital: 'Dodoma', currency: 'szyling tanzański (TZS)', languages: 'suahili, angielski', population: 'ok. 67 mln', latlng: [-6, 35] },
+  ZA: { capital: 'Pretoria, Kapsztad, Bloemfontein', currency: 'rand południowoafrykański (ZAR)', languages: 'afrikaans, angielski, zulu i inne', population: 'ok. 62 mln', latlng: [-29, 24] },
+  AE: { capital: 'Abu Zabi', currency: 'dirham ZEA (AED)', languages: 'arabski', population: 'ok. 10 mln', latlng: [24, 54] },
+  SG: { capital: 'Singapur', currency: 'dolar singapurski (SGD)', languages: 'angielski, malajski, mandaryński, tamilski', population: 'ok. 5,9 mln', latlng: [1.36, 103.8] },
+  TH: { capital: 'Bangkok', currency: 'bat tajski (THB)', languages: 'tajski', population: 'ok. 71 mln', latlng: [15, 100] },
+  VN: { capital: 'Hanoi', currency: 'dong (VND)', languages: 'wietnamski', population: 'ok. 100 mln', latlng: [16, 106] },
+  IN: { capital: 'Nowe Delhi', currency: 'rupia indyjska (INR)', languages: 'hindi, angielski', population: 'ok. 1,43 mld', latlng: [20, 77] },
+  MX: { capital: 'Meksyk', currency: 'peso meksykańskie (MXN)', languages: 'hiszpański', population: 'ok. 129 mln', latlng: [23, -102] },
+  AR: { capital: 'Buenos Aires', currency: 'peso argentyńskie (ARS)', languages: 'hiszpański', population: 'ok. 46 mln', latlng: [-34, -64] },
+  CL: { capital: 'Santiago', currency: 'peso chilijskie (CLP)', languages: 'hiszpański', population: 'ok. 20 mln', latlng: [-30, -71] },
+  PE: { capital: 'Lima', currency: 'sol (PEN)', languages: 'hiszpański, keczua, ajmara', population: 'ok. 34 mln', latlng: [-10, -76] },
+  NZ: { capital: 'Wellington', currency: 'dolar nowozelandzki (NZD)', languages: 'angielski, maoryski', population: 'ok. 5,3 mln', latlng: [-41, 174] },
   MA: { capital: 'Rabat', currency: 'dirham marokański (MAD)', languages: 'arabski, berberyjski', population: 'ok. 37 mln', latlng: [32, -6] },
   NL: { capital: 'Amsterdam', currency: 'euro (EUR)', languages: 'niderlandzki', population: 'ok. 18 mln', latlng: [52.5, 5.75] },
   NO: { capital: 'Oslo', currency: 'korona norweska (NOK)', languages: 'norweski', population: 'ok. 5,6 mln', latlng: [62, 10] },
@@ -243,14 +264,15 @@ async function showCountryInfo(code) {
 function showCountryDetails(code, featuredTrip) {
   const trips = visitedCountries.filter(country => country.code === code).sort((a, b) => getTripMonth(b).localeCompare(getTripMonth(a)));
   const country = featuredTrip || trips[0];
-  $('#detailsImage').src = country.image;
+  $('#detailsImage').onerror = () => { $('#detailsImage').onerror = null; $('#detailsImage').src = fallbackImage; };
+  $('#detailsImage').src = country.image || fallbackImage;
   $('#detailsImage').alt = `${country.place}, ${country.name}`;
   $('#detailsYear').textContent = `${trips.length} ${trips.length === 1 ? 'podróż' : 'podróże'}`;
   $('#detailsCountry').textContent = country.name;
   $('#detailsCity').innerHTML = `<img src="${flagUrl(country.code)}" alt="" /> Wszystkie zapisane miasta`;
   $('#countryTrips').innerHTML = trips.map(trip => {
     const index = visitedCountries.indexOf(trip);
-    return `<div class="trip-row"><div><strong>${escapeHtml(trip.place)}</strong><span>${isCompleted(trip) ? 'Odbyta' : 'Planowana'} · ${escapeHtml(formatMonth(trip))}</span></div><button type="button" data-delete-trip="${index}" aria-label="Usuń podróż do miasta ${escapeHtml(trip.place)}">Usuń</button></div>`;
+    return `<div class="trip-row"><div><strong>${escapeHtml(trip.place)}</strong><span>${isCompleted(trip) ? 'Odbyta' : 'Planowana'} · ${escapeHtml(formatMonth(trip))}</span>${renderTripRatings(trip) ? `<small class="trip-rating-summary">${renderTripRatings(trip)}</small>` : ''}${trip.ratingNote ? `<em>${escapeHtml(trip.ratingNote)}</em>` : ''}</div><button type="button" data-delete-trip="${index}" aria-label="Usuń podróż do miasta ${escapeHtml(trip.place)}">Usuń</button></div>`;
   }).join('');
   $('#detailsModal').showModal();
 }
@@ -375,7 +397,18 @@ form.addEventListener('submit', async event => {
   const city = await verifyCity(data.get('city').trim(), code);
   if (!city) { cityInput.focus(); return; }
   const date = `${$('#tripYear').value}-${$('#tripMonth').value}`;
-  visitedCountries.unshift({ name, code, place: city, date, year: date.slice(0, 4), image: `https://loremflickr.com/900/700/${encodeURIComponent(city)},${encodeURIComponent(name)},travel?lock=${code}${date.replace('-', '')}` });
+  visitedCountries.unshift({
+    name,
+    code,
+    place: city,
+    date,
+    year: date.slice(0, 4),
+    image: tripImageUrl(city, name, code, date),
+    priceRating: data.get('priceRating'),
+    safetyRating: data.get('safetyRating'),
+    atmosphereRating: data.get('atmosphereRating'),
+    ratingNote: data.get('ratingNote').trim()
+  });
   localStorage.setItem('travia-countries', JSON.stringify(visitedCountries));
   renderCards(); updateStats(); modal.close(); form.reset(); codeInput.value = '';
   trigger.querySelector('.selected-flag').textContent = '◎';

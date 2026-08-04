@@ -122,6 +122,34 @@
           <select id="tripYear" aria-label="Rok podróży" required></select>
           <input name="date" type="hidden" id="tripDate" />
         </div>
+        <fieldset class="trip-ratings">
+          <legend>Ocena miasta po podróży</legend>
+          <label>Średnie ceny<select name="priceRating" aria-label="Ocena średnich cen">
+            <option value="">Nie oceniam teraz</option>
+            <option value="1">1 — bardzo tanio</option>
+            <option value="2">2 — tanio</option>
+            <option value="3">3 — średnio</option>
+            <option value="4">4 — drogo</option>
+            <option value="5">5 — bardzo drogo</option>
+          </select></label>
+          <label>Bezpieczeństwo<select name="safetyRating" aria-label="Ocena bezpieczeństwa">
+            <option value="">Nie oceniam teraz</option>
+            <option value="1">1 — słabo</option>
+            <option value="2">2 — raczej słabo</option>
+            <option value="3">3 — neutralnie</option>
+            <option value="4">4 — bezpiecznie</option>
+            <option value="5">5 — bardzo bezpiecznie</option>
+          </select></label>
+          <label>Klimat miejsca<select name="atmosphereRating" aria-label="Ocena klimatu miejsca">
+            <option value="">Nie oceniam teraz</option>
+            <option value="1">1 — nie dla mnie</option>
+            <option value="2">2 — przeciętnie</option>
+            <option value="3">3 — okej</option>
+            <option value="4">4 — super</option>
+            <option value="5">5 — zachwycająco</option>
+          </select></label>
+          <label class="rating-note">Notatka<input name="ratingNote" placeholder="Np. jedzenie tanie, centrum spokojne" maxlength="90" /></label>
+        </fieldset>
         <div class="form-actions"><button type="button" data-close-country class="cancel-button">Anuluj</button><button type="submit" class="save-button">Dodaj kraj</button></div>
       </form>
     </dialog>
