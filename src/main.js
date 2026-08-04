@@ -196,7 +196,11 @@ async function showCountryInfo(code) {
   $('#countryMiniMap').innerHTML = '';
   $('#countryInfoModal').showModal();
   try {
-    const response = await fetch(`https://restcountries.com/v3.1/alpha/${code}?fields=capital,currencies,languages,population,latlng`);
+    // Some REST Countries edge nodes reject the optional `fields` query.
+    // Fetch the full record so the details work consistently for every country.
+    const response = await fetch(`https://restcountries.com/v3.1/alpha/${encodeURIComponent(code)}`, {
+      headers: { Accept: 'application/json' }
+    });
     if (!response.ok) throw new Error('country lookup failed');
     const payload = await response.json();
     const data = Array.isArray(payload) ? payload[0] : payload;
