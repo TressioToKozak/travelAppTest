@@ -38,14 +38,14 @@
             <div class="stat-icon pin-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
             </div>
-            <div><strong id="countryCount">12</strong><span>odwiedzonych krajów</span></div>
-            <span class="trend">+3 w tym roku</span>
+            <div><strong id="countryCount">0</strong><span>odwiedzonych krajów</span></div>
+            <span class="trend">+0 w tym roku</span>
           </article>
           <article class="stat-card">
             <div class="stat-icon globe-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
             </div>
-            <div><strong>8%</strong><span>świata odkryte</span></div>
+            <div><strong>0%</strong><span>świata odkryte</span></div>
           </article>
           <div class="next-trip">
             <span>Następna podróż</span>
@@ -53,6 +53,14 @@
             <small>za 24 dni</small>
             <div class="trip-line"><i></i></div>
           </div>
+        </section>
+
+        <section class="scratch-section" aria-labelledby="scratchTitle">
+          <div class="scratch-heading">
+            <div><span class="mini-label">TWOJA ZDRAPKA ŚWIATA</span><h2 id="scratchTitle">Odkrywaj świat kawałek po kawałku</h2><p>Każdy dodany kraj rozświetli się na Twojej mapie.</p></div>
+            <div class="map-legend"><i></i> Odwiedzone <span></span> Do odkrycia</div>
+          </div>
+          <div class="world-map" id="worldMap" aria-label="Interaktywna mapa odwiedzonych krajów"></div>
         </section>
 
         <section class="content-section">
@@ -111,7 +119,7 @@
       <div class="details-content">
         <button class="modal-close" id="closeDetails" aria-label="Zamknij">×</button>
         <img id="detailsImage" alt="" />
-        <div class="details-copy"><span class="mini-label" id="detailsYear"></span><h2 id="detailsCountry"></h2><p id="detailsCity"></p></div>
+        <div class="details-copy"><span class="mini-label" id="detailsYear"></span><h2 id="detailsCountry"></h2><p id="detailsCity"></p><button type="button" class="delete-country" id="deleteCountry">Usuń z odwiedzonych</button></div>
       </div>
     </dialog>
     <div class="toast" id="toast" role="status">Kraj został dodany do Twojej kolekcji ✓</div>
