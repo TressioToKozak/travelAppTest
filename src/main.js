@@ -9,14 +9,6 @@ const recommendations = [
 const countryCodes = `AF AL DZ AD AO AG AR AM AU AT AZ BS BH BD BB BY BE BZ BJ BT BO BA BW BR BN BG BF BI CV KH CM CA CF TD CL CN CO KM CG CD CR CI HR CU CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FJ FI FR GA GM GE DE GH GR GD GT GN GW GY HT HN HU IS IN ID IR IQ IE IL IT JM JP JO KZ KE KI KP KR KW KG LA LV LB LS LR LY LI LT LU MG MW MY MV ML MT MH MR MU MX FM MD MC MN ME MA MZ MM NA NR NP NL NZ NI NE NG MK NO OM PK PW PS PA PG PY PE PH PL PT QA RO RU RW KN LC VC WS SM ST SA SN RS SC SL SG SK SI SB SO ZA SS ES LK SD SR SE CH SY TJ TZ TH TL TG TO TT TN TR TM TV UG UA AE GB US UY UZ VU VA VE VN YE ZM ZW`.split(' ');
 const regionNames = new Intl.DisplayNames(['pl'], { type: 'region' });
 const availableCountries = countryCodes.map(code => ({ code, name: regionNames.of(code) })).sort((a, b) => a.name.localeCompare(b.name, 'pl'));
-const continents = [
-  { name: 'Ameryka Północna', className: 'north-america', codes: 'AG BS BB BZ CA CR CU DM DO SV GD GT HT HN JM MX NI PA KN LC VC TT US'.split(' ') },
-  { name: 'Ameryka Południowa', className: 'south-america', codes: 'AR BO BR CL CO EC GY PY PE SR UY VE'.split(' ') },
-  { name: 'Europa', className: 'europe', codes: 'AL AD AT BY BE BA BG HR CZ DK EE FI FR DE GR VA HU IS IE IT LV LI LT LU MT MD MC ME NL MK NO PL PT RO RU SM RS SK SI ES SE CH UA GB'.split(' ') },
-  { name: 'Afryka', className: 'africa', codes: 'DZ AO BJ BW BF BI CV CM CF TD KM CG CD CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU MA MZ NA NE NG RW ST SN SC SL SO ZA SS SD TZ TG TN UG ZM ZW'.split(' ') },
-  { name: 'Azja', className: 'asia', codes: 'AF AM AZ BH BD BT BN KH CN CY GE IN ID IR IQ IL JP JO KZ KW KG LA LB MY MV MN MM NP KP KR OM PK PS PH QA SA SG LK SY TJ TH TL TR TM AE UZ VN YE'.split(' ') },
-  { name: 'Oceania', className: 'oceania', codes: 'AU FJ KI MH FM NR NZ PW PG WS SB TO TV VU'.split(' ') }
-];
 let saved = null;
 try {
   saved = JSON.parse(localStorage.getItem('travia-countries') || 'null');
@@ -37,6 +29,7 @@ const options = $('#countryOptions');
 const codeInput = $('#countryCode');
 let visibleCards = visitedCountries;
 let selectedCountry = null;
+let worldMap = null;
 
 const escapeHtml = value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 const flagUrl = code => `https://flagsapi.com/${code}/flat/64.png`;
@@ -58,16 +51,46 @@ function updateStats() {
 }
 
 function renderMap() {
-  const visitedCodes = new Set(visitedCountries.map(country => country.code));
-  $('#worldMap').innerHTML = continents.map(continent => `
-    <section class="map-continent ${continent.className}" aria-label="${continent.name}">
-      <h3>${continent.name}</h3>
-      <div class="country-tiles">${continent.codes.map(code => {
-        const country = availableCountries.find(item => item.code === code);
-        const visited = visitedCodes.has(code);
-        return `<button type="button" class="map-country${visited ? ' discovered' : ''}" data-map-code="${code}" title="${escapeHtml(country.name)}${visited ? ' — odwiedzone' : ''}" aria-label="${escapeHtml(country.name)}${visited ? ', odwiedzone' : ', jeszcze nieodwiedzone'}">${visited ? `<img src="${flagUrl(code)}" alt=""/>` : code}</button>`;
-      }).join('')}</div>
-    </section>`).join('');
+  const visitedCodes = [...new Set(visitedCountries.map(country => country.code))];
+  if (worldMap) {
+    worldMap.clearSelectedRegions();
+    worldMap.setSelectedRegions(visitedCodes);
+    return;
+  }
+  if (!window.jsVectorMap) {
+    $('#worldMap').innerHTML = '<p class="map-error">Nie udało się załadować mapy. Sprawdź połączenie z internetem.</p>';
+    return;
+  }
+  worldMap = new window.jsVectorMap({
+    selector: '#worldMap',
+    map: 'world',
+    backgroundColor: 'transparent',
+    zoomButtons: true,
+    zoomOnScroll: false,
+    selectedRegions: visitedCodes,
+    regionStyle: {
+      initial: { fill: '#60766c', stroke: '#173f31', strokeWidth: 0.7 },
+      hover: { fill: '#8fa399', cursor: 'pointer' },
+      selected: { fill: '#d9f34a' },
+      selectedHover: { fill: '#e8fa78' }
+    },
+    onRegionTooltipShow(event, tooltip, code) {
+      tooltip.text(`${regionNames.of(code)}${visitedCodes.includes(code) ? ' · odwiedzone' : ' · do odkrycia'}`);
+    },
+    onRegionClick(event, code) {
+      openCountryFromMap(code);
+    }
+  });
+}
+
+function openCountryFromMap(code) {
+  const visit = visitedCountries.find(country => country.code === code);
+  if (visit) {
+    visibleCards = visitedCountries;
+    showDetails(visitedCountries.indexOf(visit));
+  } else {
+    showToast(`${regionNames.of(code)} wciąż czeka na odkrycie`);
+  }
 }
 
 function renderCards(items = visitedCountries) {
@@ -156,17 +179,6 @@ $('#deleteCountry').addEventListener('click', () => {
   renderCards();
   updateStats();
   showToast(`${removed.name} usunięto z odwiedzonych`);
-});
-$('#worldMap').addEventListener('click', event => {
-  const tile = event.target.closest('[data-map-code]');
-  if (!tile) return;
-  const visit = visitedCountries.find(country => country.code === tile.dataset.mapCode);
-  if (visit) {
-    visibleCards = visitedCountries;
-    showDetails(visitedCountries.indexOf(visit));
-  } else {
-    showToast(`${regionNames.of(tile.dataset.mapCode)} wciąż czeka na odkrycie`);
-  }
 });
 $('#profileButton').addEventListener('click', () => showToast(`Ola, masz ${new Set(visitedCountries.map(country => country.code)).size} krajów w kolekcji`));
 $('#showAllButton').addEventListener('click', () => { document.querySelector('[data-tab="visited"]').click(); showToast('Wyświetlam wszystkie odwiedzone kraje'); });
