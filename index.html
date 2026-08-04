@@ -61,7 +61,11 @@
             <div><span class="mini-label">TWOJA ZDRAPKA ŚWIATA</span><h2 id="scratchTitle">Odkrywaj świat kawałek po kawałku</h2><p>Każdy dodany kraj rozświetli się na Twojej mapie.</p></div>
             <div class="map-legend"><i></i> Odwiedzone <span></span> Do odkrycia</div>
           </div>
-          <div class="world-map" id="worldMap" aria-label="Interaktywna mapa odwiedzonych krajów"></div>
+          <div class="world-map" id="worldMap" aria-label="Interaktywna mapa odwiedzonych krajów">
+            <svg class="fallback-world" viewBox="0 0 1000 500" role="img" aria-label="Mapa świata">
+              <g><path d="M55 115 110 68l95-25 75 33 35 70-26 42-55 18-32 56-44 9-19-57-54-23-35-42Z"/><path d="m245 282 54 21 35 58-15 91-36 42-20-76-31-70Z"/><path d="m416 105 53-38 87 9 35 34-23 37-57-5-34 35-44-19Z"/><path d="m455 190 80-27 58 41-15 105-54 116-51-53-29-104Z"/><path d="m568 87 100-36 144 31 130 71-47 73-78-3-30 61-68-29-48-75-68-16Z"/><path d="m773 338 57-41 90 22 37 66-72 54-92-27Z"/><path d="m360 49 30-31 30 25-18 43Z"/><path d="m925 276 25-17 22 19-18 19Z"/></g>
+            </svg>
+          </div>
         </section>
 
         <section class="content-section">
@@ -111,8 +115,13 @@
           </div>
           <input type="hidden" name="countryCode" id="countryCode" required />
         </div>
-        <label>Miasto<input name="city" id="cityInput" placeholder="np. Lizbona" required autocomplete="off" /><small class="field-hint" id="cityHint">Sprawdzimy, czy miasto znajduje się w wybranym kraju.</small></label>
-        <label>Miesiąc podróży<input name="date" type="month" id="tripDate" min="1950-01" required /></label>
+        <label class="city-field">Miasto<input name="city" id="cityInput" placeholder="Zacznij wpisywać, np. Lizbona" required autocomplete="off" /><div class="city-suggestions" id="citySuggestions" hidden></div><small class="field-hint" id="cityHint">Wybierz miasto z podpowiedzi.</small></label>
+        <label>Termin podróży</label>
+        <div class="date-picker">
+          <select id="tripMonth" aria-label="Miesiąc podróży" required></select>
+          <select id="tripYear" aria-label="Rok podróży" required></select>
+          <input name="date" type="hidden" id="tripDate" />
+        </div>
         <div class="form-actions"><button type="button" data-close-country class="cancel-button">Anuluj</button><button type="submit" class="save-button">Dodaj kraj</button></div>
       </form>
     </dialog>
