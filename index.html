@@ -88,8 +88,13 @@
         <button class="modal-close" value="cancel" aria-label="Zamknij">×</button>
         <span class="mini-label">NOWE WSPOMNIENIE</span>
         <h2>Dodaj odwiedzony kraj</h2>
-        <p>Zapisz miejsce, do którego chcesz kiedyś wrócić.</p>
-        <label>Nazwa kraju<input name="country" placeholder="np. Portugalia" required autocomplete="country-name" /></label>
+        <p>Wybierz prawdziwy kraj i zapisz miasto, które odwiedziłaś.</p>
+        <label>Nazwa kraju
+          <select name="countryCode" id="countrySelect" required>
+            <option value="">Wybierz kraj</option>
+          </select>
+        </label>
+        <label>Odwiedzone miasto<input name="city" placeholder="np. Lizbona" required autocomplete="address-level2" /></label>
         <label>Rok podróży<input name="year" type="number" min="1950" max="2030" value="2026" required /></label>
         <div class="form-actions"><button value="cancel" class="cancel-button">Anuluj</button><button type="submit" value="default" class="save-button">Dodaj kraj</button></div>
       </form>
