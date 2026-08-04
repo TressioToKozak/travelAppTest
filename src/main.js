@@ -36,6 +36,11 @@ try {
   localStorage.removeItem('travia-countries');
 }
 const visitedCountries = Array.isArray(saved) ? saved : starterCountries;
+visitedCountries.forEach(trip => {
+  trip.name = trip.name || regionNames.of(trip.code);
+  trip.place = trip.place || 'Nieznane miasto';
+  trip.date = /^\d{4}-\d{2}$/.test(trip.date) ? trip.date : `${trip.year || new Date().getFullYear()}-01`;
+});
 
 const $ = selector => document.querySelector(selector);
 const grid = $('#countryGrid');
@@ -53,6 +58,7 @@ const citySuggestions = $('#citySuggestions');
 let visibleCards = visitedCountries;
 let worldMap = null;
 let verifiedCity = null;
+let activeInfoCode = null;
 
 const escapeHtml = value => String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 const flagUrl = code => `https://flagsapi.com/${code}/flat/64.png`;
@@ -128,13 +134,7 @@ function renderMap() {
 }
 
 function openCountryFromMap(code) {
-  const trips = visitedCountries.filter(country => country.code === code);
-  if (trips.length) {
-    visibleCards = visitedCountries;
-    showCountryDetails(code);
-  } else {
-    showToast(`${regionNames.of(code)} wciąż czeka na odkrycie`);
-  }
+  showCountryInfo(code);
 }
 
 function renderCards(items = visitedCountries) {
@@ -146,7 +146,7 @@ function renderCards(items = visitedCountries) {
   }
   grid.innerHTML = items.map((country, index) => `
     <article class="country-card" style="--delay:${index * 80}ms" tabindex="0" data-card-index="${index}">
-      <img src="${country.image}" alt="${escapeHtml(country.place)}, ${escapeHtml(country.name)}" />
+      <img src="${country.image}" alt="${escapeHtml(country.place)}, ${escapeHtml(country.name)}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80'" />
       <div class="card-shade"></div>
       <span class="flag"><img src="${flagUrl(country.code)}" alt="Flaga kraju ${escapeHtml(country.name)}" /></span>
       <div class="card-copy"><span>${country.recommended ? 'POLECANE DLA CIEBIE' : `${isCompleted(country) ? 'ODWIEDZONE' : 'ZAPLANOWANE'} · ${escapeHtml(formatMonth(country))}`}</span><h3>${escapeHtml(country.name)}</h3><p>${escapeHtml(country.place)}</p></div>
@@ -157,16 +157,54 @@ function renderCards(items = visitedCountries) {
 function showDetails(index) {
   const country = visibleCards[index];
   if (country.recommended) {
-    $('#detailsImage').src = country.image;
-    $('#detailsImage').alt = `${country.place}, ${country.name}`;
-    $('#detailsYear').textContent = 'REKOMENDACJA';
-    $('#detailsCountry').textContent = country.name;
-    $('#detailsCity').innerHTML = `<img src="${flagUrl(country.code)}" alt="" /> ${escapeHtml(country.place)}`;
-    $('#countryTrips').innerHTML = '';
-    $('#detailsModal').showModal();
+    showCountryInfo(country.code);
     return;
   }
   showCountryDetails(country.code, country);
+}
+
+const fallbackFacts = {
+  PL: { capital: 'Warszawa', currency: 'złoty polski (PLN)', languages: 'polski', population: 'ok. 37,6 mln', latlng: [52, 20] },
+  BR: { capital: 'Brasília', currency: 'real brazylijski (BRL)', languages: 'portugalski', population: 'ok. 203 mln', latlng: [-10, -55] },
+  IS: { capital: 'Reykjavík', currency: 'korona islandzka (ISK)', languages: 'islandzki', population: 'ok. 390 tys.', latlng: [65, -18] },
+  GR: { capital: 'Ateny', currency: 'euro (EUR)', languages: 'grecki', population: 'ok. 10,4 mln', latlng: [39, 22] },
+  MA: { capital: 'Rabat', currency: 'dirham marokański (MAD)', languages: 'arabski, berberyjski', population: 'ok. 37 mln', latlng: [32, -6] }
+};
+
+function renderCountryFacts(facts) {
+  $('#countryFacts').innerHTML = `
+    <div><span>Stolica</span><strong>${escapeHtml(facts.capital || 'Brak danych')}</strong></div>
+    <div><span>Waluta</span><strong>${escapeHtml(facts.currency || 'Brak danych')}</strong></div>
+    <div><span>Języki</span><strong>${escapeHtml(facts.languages || 'Brak danych')}</strong></div>
+    <div><span>Ludność</span><strong>${escapeHtml(facts.population || 'Brak danych')}</strong></div>`;
+  if (facts.latlng?.length === 2) {
+    const [lat, lon] = facts.latlng;
+    const bbox = `${lon - 12},${lat - 8},${lon + 12},${lat + 8}`;
+    $('#countryMiniMap').innerHTML = `<iframe title="Położenie kraju na mapie" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}"></iframe>`;
+  } else $('#countryMiniMap').innerHTML = '';
+}
+
+async function showCountryInfo(code) {
+  activeInfoCode = code;
+  const trips = visitedCountries.filter(trip => trip.code === code);
+  const completed = trips.some(isCompleted);
+  $('#countryInfoName').textContent = regionNames.of(code);
+  $('#countryInfoFlag').src = flagUrl(code);
+  $('#countryInfoFlag').alt = `Flaga kraju ${regionNames.of(code)}`;
+  $('#countryInfoStatus').textContent = completed ? `ODWIEDZONE · ${trips.length} ${trips.length === 1 ? 'PODRÓŻ' : 'PODRÓŻE'}` : trips.length ? 'PODRÓŻ ZAPLANOWANA' : 'DO ODKRYCIA';
+  $('#countryFacts').innerHTML = '<p class="facts-loading">Ładowanie informacji o kraju…</p>';
+  $('#countryMiniMap').innerHTML = '';
+  $('#countryInfoModal').showModal();
+  try {
+    const response = await fetch(`https://restcountries.com/v3.1/alpha/${code}?fields=capital,currencies,languages,population,latlng`);
+    if (!response.ok) throw new Error('country lookup failed');
+    const payload = await response.json();
+    const data = Array.isArray(payload) ? payload[0] : payload;
+    const currency = Object.entries(data.currencies || {}).map(([iso, item]) => `${item.name} (${iso})`).join(', ');
+    renderCountryFacts({ capital: data.capital?.join(', '), currency, languages: Object.values(data.languages || {}).join(', '), population: Number(data.population).toLocaleString('pl-PL'), latlng: data.latlng });
+  } catch {
+    renderCountryFacts(fallbackFacts[code] || { capital: 'Dane wymagają połączenia', currency: 'Dane wymagają połączenia', languages: 'Dane wymagają połączenia' });
+  }
 }
 
 function showCountryDetails(code, featuredTrip) {
@@ -303,8 +341,8 @@ form.addEventListener('submit', async event => {
   const name = regionNames.of(code);
   const city = await verifyCity(data.get('city').trim(), code);
   if (!city) { cityInput.focus(); return; }
-  const date = data.get('date');
-  visitedCountries.unshift({ name, code, place: city, date, year: date.slice(0, 4), image: `https://loremflickr.com/900/700/${encodeURIComponent(city)},${encodeURIComponent(name)},travel/all` });
+  const date = `${$('#tripYear').value}-${$('#tripMonth').value}`;
+  visitedCountries.unshift({ name, code, place: city, date, year: date.slice(0, 4), image: `https://loremflickr.com/900/700/${encodeURIComponent(city)},${encodeURIComponent(name)},travel?lock=${code}${date.replace('-', '')}` });
   localStorage.setItem('travia-countries', JSON.stringify(visitedCountries));
   renderCards(); updateStats(); modal.close(); form.reset(); codeInput.value = '';
   trigger.querySelector('.selected-flag').textContent = '◎';
@@ -321,6 +359,17 @@ form.addEventListener('submit', async event => {
 grid.addEventListener('click', event => { const card = event.target.closest('[data-card-index]'); if (card) showDetails(Number(card.dataset.cardIndex)); });
 grid.addEventListener('keydown', event => { if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-card-index]')) showDetails(Number(event.target.dataset.cardIndex)); });
 $('#closeDetails').addEventListener('click', () => $('#detailsModal').close());
+$('#closeCountryInfo').addEventListener('click', () => $('#countryInfoModal').close());
+$('#planCountry').addEventListener('click', () => {
+  const country = availableCountries.find(item => item.code === activeInfoCode);
+  codeInput.value = country.code;
+  trigger.querySelector('.selected-flag').innerHTML = `<img src="${flagUrl(country.code)}" alt="" />`;
+  trigger.querySelector('.selected-country').textContent = country.name;
+  $('#countryInfoModal').close();
+  modal.showModal();
+  cityInput.focus();
+  showCitySuggestions(localCities[country.code] || []);
+});
 $('#countryTrips').addEventListener('click', event => {
   const button = event.target.closest('[data-delete-trip]');
   if (!button) return;
@@ -339,7 +388,7 @@ document.querySelectorAll('[data-tab]').forEach(button => button.addEventListene
   const recommended = button.dataset.tab === 'recommendations';
   document.querySelector('.content-section .mini-label').textContent = recommended ? 'WYBRANE DLA CIEBIE' : 'KOLEKCJA WSPOMNIEŃ';
   $('.section-heading h2').textContent = recommended ? 'Kierunki warte odkrycia' : 'Twoje ostatnie podróże';
-  renderCards(recommended ? recommendations.filter(item => !visitedCountries.some(country => country.code === item.code)) : visitedCountries);
+  renderCards(recommended ? recommendations : visitedCountries);
   $('.content-section').scrollIntoView({ behavior: 'smooth' });
 }));
 

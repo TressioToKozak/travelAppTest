@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/css/jsvectormap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/css/jsvectormap.min.css" onerror="this.onerror=null;this.href='https://unpkg.com/jsvectormap@1.7.0/dist/css/jsvectormap.min.css'" />
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
@@ -132,9 +132,18 @@
         <div class="details-copy"><span class="mini-label" id="detailsYear"></span><h2 id="detailsCountry"></h2><p id="detailsCity"></p><div class="country-trips" id="countryTrips"></div></div>
       </div>
     </dialog>
+    <dialog id="countryInfoModal" class="country-info-modal">
+      <div class="country-info-content">
+        <button class="modal-close" id="closeCountryInfo" aria-label="Zamknij">×</button>
+        <div class="country-info-hero" id="countryInfoHero"><img id="countryInfoFlag" alt=""/><div><span class="mini-label" id="countryInfoStatus"></span><h2 id="countryInfoName"></h2></div></div>
+        <div class="country-facts" id="countryFacts"><p>Ładowanie informacji…</p></div>
+        <div class="country-mini-map" id="countryMiniMap"></div>
+        <button type="button" class="plan-country" id="planCountry">Zaplanuj podróż do tego kraju</button>
+      </div>
+    </dialog>
     <div class="toast" id="toast" role="status">Kraj został dodany do Twojej kolekcji ✓</div>
-    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/jsvectormap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/maps/world.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/jsvectormap.min.js" onerror="this.onerror=null;this.src='https://unpkg.com/jsvectormap@1.7.0/dist/jsvectormap.min.js'"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.7.0/dist/maps/world.js" onerror="this.onerror=null;this.src='https://unpkg.com/jsvectormap@1.7.0/dist/maps/world.js'"></script>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
