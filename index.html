@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f8f7f2" />
+    <meta name="description" content="Travia — Twoja osobista mapa podróży." />
+    <title>Travia — Moje podróże</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Travia — strona główna">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40"><path d="M9 24.5c5.2-2.1 9.1-6.9 11.5-14.5 1.1 7.2 4.7 12.1 10.5 14.5-6.1.4-10.4 2.6-12.7 6.5-1-4.1-4.1-6.3-9.3-6.5Z"/></svg>
+          </span>
+          <span>travia</span>
+        </a>
+        <button class="profile" aria-label="Otwórz profil użytkownika">
+          <span class="profile-copy"><strong>Cześć, Ola!</strong><small>Gotowa na kolejną podróż?</small></span>
+          <span class="avatar">O</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="eyebrow"><span></span> TWOJA MAPA WSPOMNIEŃ</div>
+          <h1>Świat jest pełen<br/><em>historii do odkrycia.</em></h1>
+          <p>Zachowuj miejsca, które skradły Twoje serce<br class="desktop-only"/> i odkrywaj kolejne kierunki.</p>
+        </section>
+
+        <section class="dashboard" aria-label="Podsumowanie podróży">
+          <article class="stat-card main-stat">
+            <div class="stat-icon pin-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            </div>
+            <div><strong id="countryCount">12</strong><span>odwiedzonych krajów</span></div>
+            <span class="trend">+3 w tym roku</span>
+          </article>
+          <article class="stat-card">
+            <div class="stat-icon globe-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+            </div>
+            <div><strong>8%</strong><span>świata odkryte</span></div>
+          </article>
+          <div class="next-trip">
+            <span>Następna podróż</span>
+            <strong>Islandia</strong>
+            <small>za 24 dni</small>
+            <div class="trip-line"><i></i></div>
+          </div>
+        </section>
+
+        <section class="content-section">
+          <div class="section-heading">
+            <div><span class="mini-label">KOLEKCJA WSPOMNIEŃ</span><h2>Twoje ostatnie podróże</h2></div>
+            <button class="text-button" data-tab-link="visited">Zobacz wszystkie <span>→</span></button>
+          </div>
+          <div class="country-grid" id="countryGrid"></div>
+        </section>
+
+        <section class="quote-section">
+          <span class="quote-mark">“</span>
+          <blockquote>Podróże to jedyna rzecz, na którą wydajesz pieniądze,<br class="desktop-only"/> a stajesz się bogatszy.</blockquote>
+          <span class="quote-author">— ANONIMOWY PODRÓŻNIK</span>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Główna nawigacja">
+        <button class="nav-item active" data-tab="visited">
+          <svg viewBox="0 0 24 24"><path d="M4 6.5 9 4l6 2.5L20 4v14l-5 2-6-2.5L4 20Z"/><path d="M9 4v13.5M15 6.5V20"/></svg>
+          <span>Odwiedzone kraje</span>
+        </button>
+        <button class="add-button" id="openModal" aria-label="Dodaj nowy kraj"><span>+</span></button>
+        <button class="nav-item" data-tab="recommendations">
+          <svg viewBox="0 0 24 24"><path d="M12 3 9.7 8.8 4 11l5.7 2.2L12 19l2.3-5.8L20 11l-5.7-2.2Z"/></svg>
+          <span>Rekomendacje</span>
+        </button>
+      </nav>
+    </div>
+
+    <dialog id="countryModal">
+      <form method="dialog" id="countryForm">
+        <button class="modal-close" value="cancel" aria-label="Zamknij">×</button>
+        <span class="mini-label">NOWE WSPOMNIENIE</span>
+        <h2>Dodaj odwiedzony kraj</h2>
+        <p>Wybierz prawdziwy kraj i zapisz miasto, które odwiedziłaś.</p>
+        <label>Nazwa kraju
+          <select name="countryCode" id="countrySelect" required>
+            <option value="">Wybierz kraj</option>
+          </select>
+        </label>
+        <label>Odwiedzone miasto<input name="city" placeholder="np. Lizbona" required autocomplete="address-level2" /></label>
+        <label>Rok podróży<input name="year" type="number" min="1950" max="2030" value="2026" required /></label>
+        <div class="form-actions"><button value="cancel" class="cancel-button">Anuluj</button><button type="submit" value="default" class="save-button">Dodaj kraj</button></div>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status">Kraj został dodany do Twojej kolekcji ✓</div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
