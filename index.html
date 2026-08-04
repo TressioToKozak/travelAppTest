@@ -28,13 +28,13 @@
       </header>
 
       <main>
-        <section class="hero">
+        <section class="hero" data-panel="visited">
           <div class="eyebrow"><span></span> TWOJA MAPA WSPOMNIEŃ</div>
           <h1>Świat jest pełen<br/><em>historii do odkrycia.</em></h1>
           <p>Zachowuj miejsca, które skradły Twoje serce<br class="desktop-only"/> i odkrywaj kolejne kierunki.</p>
         </section>
 
-        <section class="dashboard" aria-label="Podsumowanie podróży">
+        <section class="dashboard" data-panel="visited" aria-label="Podsumowanie podróży">
           <article class="stat-card main-stat">
             <div class="stat-icon pin-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
@@ -68,7 +68,7 @@
           </div>
         </section>
 
-        <section class="content-section">
+        <section class="content-section" data-panel="visited">
           <div class="section-heading">
             <div><span class="mini-label">KOLEKCJA WSPOMNIEŃ</span><h2>Twoje ostatnie podróże</h2></div>
             <button class="text-button" id="showAllButton">Zobacz wszystkie <span>→</span></button>
@@ -76,7 +76,7 @@
           <div class="country-grid" id="countryGrid"></div>
         </section>
 
-        <section class="quote-section">
+        <section class="quote-section" data-panel="visited">
           <span class="quote-mark">“</span>
           <blockquote>Podróże to jedyna rzecz, na którą wydajesz pieniądze,<br class="desktop-only"/> a stajesz się bogatszy.</blockquote>
           <span class="quote-author">— ANONIMOWY PODRÓŻNIK</span>
@@ -84,14 +84,14 @@
       </main>
 
       <nav class="bottom-nav" aria-label="Główna nawigacja">
-        <button class="nav-item active" data-tab="visited">
+        <button class="nav-item active" data-tab="map">
           <svg viewBox="0 0 24 24"><path d="M4 6.5 9 4l6 2.5L20 4v14l-5 2-6-2.5L4 20Z"/><path d="M9 4v13.5M15 6.5V20"/></svg>
-          <span>Odwiedzone kraje</span>
+          <span>Mapa</span>
         </button>
         <button class="add-button" id="openModal" aria-label="Dodaj nowy kraj"><span>+</span></button>
-        <button class="nav-item" data-tab="recommendations">
+        <button class="nav-item" data-tab="visited">
           <svg viewBox="0 0 24 24"><path d="M12 3 9.7 8.8 4 11l5.7 2.2L12 19l2.3-5.8L20 11l-5.7-2.2Z"/></svg>
-          <span>Rekomendacje</span>
+          <span>Podróże</span>
         </button>
       </nav>
     </div>

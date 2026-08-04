@@ -27,6 +27,11 @@ const localCities = {
   ID: ['Dżakarta', 'Ubud', 'Denpasar', 'Yogyakarta'], KR: ['Seul', 'Busan', 'Incheon'], SG: ['Singapur'], AE: ['Dubaj', 'Abu Zabi'],
   ZA: ['Kapsztad', 'Johannesburg', 'Durban', 'Pretoria'], KE: ['Nairobi', 'Mombasa'], TZ: ['Dodoma', 'Dar es Salaam', 'Arusza']
 };
+
+const countryCodeAliases = {
+  AFG: 'AF', ALB: 'AL', DZA: 'DZ', AND: 'AD', AGO: 'AO', ARG: 'AR', ARM: 'AM', AUS: 'AU', AUT: 'AT', AZE: 'AZ', BEL: 'BE', BGR: 'BG', BRA: 'BR', CAN: 'CA', CHE: 'CH', CHL: 'CL', CHN: 'CN', COL: 'CO', CZE: 'CZ', DEU: 'DE', DNK: 'DK', EGY: 'EG', ESP: 'ES', FIN: 'FI', FRA: 'FR', GBR: 'GB', GRC: 'GR', HRV: 'HR', HUN: 'HU', IDN: 'ID', IND: 'IN', IRL: 'IE', ISL: 'IS', ITA: 'IT', JPN: 'JP', KOR: 'KR', MAR: 'MA', MEX: 'MX', NLD: 'NL', NOR: 'NO', NZL: 'NZ', POL: 'PL', PRT: 'PT', SWE: 'SE', THA: 'TH', TUR: 'TR', UKR: 'UA', USA: 'US', VNM: 'VN', ZAF: 'ZA'
+};
+const normalizeCountryCode = code => countryCodeAliases[String(code).toUpperCase()] || String(code).toUpperCase();
 const regionNames = new Intl.DisplayNames(['pl'], { type: 'region' });
 const availableCountries = countryCodes.map(code => ({ code, name: regionNames.of(code) })).sort((a, b) => a.name.localeCompare(b.name, 'pl'));
 let saved = null;
@@ -134,7 +139,7 @@ function renderMap() {
 }
 
 function openCountryFromMap(code) {
-  showCountryInfo(code);
+  showCountryInfo(normalizeCountryCode(code));
 }
 
 function renderCards(items = visitedCountries) {
@@ -164,11 +169,34 @@ function showDetails(index) {
 }
 
 const fallbackFacts = {
-  PL: { capital: 'Warszawa', currency: 'złoty polski (PLN)', languages: 'polski', population: 'ok. 37,6 mln', latlng: [52, 20] },
+  AT: { capital: 'Wiedeń', currency: 'euro (EUR)', languages: 'niemiecki', population: 'ok. 9,2 mln', latlng: [47.5, 14.5] },
+  AU: { capital: 'Canberra', currency: 'dolar australijski (AUD)', languages: 'angielski', population: 'ok. 27 mln', latlng: [-25, 133] },
+  BE: { capital: 'Bruksela', currency: 'euro (EUR)', languages: 'niderlandzki, francuski, niemiecki', population: 'ok. 11,8 mln', latlng: [50.8, 4] },
   BR: { capital: 'Brasília', currency: 'real brazylijski (BRL)', languages: 'portugalski', population: 'ok. 203 mln', latlng: [-10, -55] },
-  IS: { capital: 'Reykjavík', currency: 'korona islandzka (ISK)', languages: 'islandzki', population: 'ok. 390 tys.', latlng: [65, -18] },
+  CA: { capital: 'Ottawa', currency: 'dolar kanadyjski (CAD)', languages: 'angielski, francuski', population: 'ok. 41 mln', latlng: [60, -95] },
+  CH: { capital: 'Berno', currency: 'frank szwajcarski (CHF)', languages: 'niemiecki, francuski, włoski, romansz', population: 'ok. 8,9 mln', latlng: [47, 8] },
+  CZ: { capital: 'Praga', currency: 'korona czeska (CZK)', languages: 'czeski', population: 'ok. 10,9 mln', latlng: [49.75, 15.5] },
+  DE: { capital: 'Berlin', currency: 'euro (EUR)', languages: 'niemiecki', population: 'ok. 84,7 mln', latlng: [51, 9] },
+  DK: { capital: 'Kopenhaga', currency: 'korona duńska (DKK)', languages: 'duński', population: 'ok. 6 mln', latlng: [56, 10] },
+  EG: { capital: 'Kair', currency: 'funt egipski (EGP)', languages: 'arabski', population: 'ok. 112 mln', latlng: [27, 30] },
+  ES: { capital: 'Madryt', currency: 'euro (EUR)', languages: 'hiszpański', population: 'ok. 48,6 mln', latlng: [40, -4] },
+  FI: { capital: 'Helsinki', currency: 'euro (EUR)', languages: 'fiński, szwedzki', population: 'ok. 5,6 mln', latlng: [64, 26] },
+  FR: { capital: 'Paryż', currency: 'euro (EUR)', languages: 'francuski', population: 'ok. 68 mln', latlng: [46, 2] },
+  GB: { capital: 'Londyn', currency: 'funt szterling (GBP)', languages: 'angielski', population: 'ok. 68 mln', latlng: [54, -2] },
   GR: { capital: 'Ateny', currency: 'euro (EUR)', languages: 'grecki', population: 'ok. 10,4 mln', latlng: [39, 22] },
-  MA: { capital: 'Rabat', currency: 'dirham marokański (MAD)', languages: 'arabski, berberyjski', population: 'ok. 37 mln', latlng: [32, -6] }
+  HR: { capital: 'Zagrzeb', currency: 'euro (EUR)', languages: 'chorwacki', population: 'ok. 3,9 mln', latlng: [45.2, 15.5] },
+  IE: { capital: 'Dublin', currency: 'euro (EUR)', languages: 'angielski, irlandzki', population: 'ok. 5,3 mln', latlng: [53, -8] },
+  IS: { capital: 'Reykjavík', currency: 'korona islandzka (ISK)', languages: 'islandzki', population: 'ok. 390 tys.', latlng: [65, -18] },
+  IT: { capital: 'Rzym', currency: 'euro (EUR)', languages: 'włoski', population: 'ok. 59 mln', latlng: [42.8, 12.8] },
+  JP: { capital: 'Tokio', currency: 'jen (JPY)', languages: 'japoński', population: 'ok. 124 mln', latlng: [36, 138] },
+  MA: { capital: 'Rabat', currency: 'dirham marokański (MAD)', languages: 'arabski, berberyjski', population: 'ok. 37 mln', latlng: [32, -6] },
+  NL: { capital: 'Amsterdam', currency: 'euro (EUR)', languages: 'niderlandzki', population: 'ok. 18 mln', latlng: [52.5, 5.75] },
+  NO: { capital: 'Oslo', currency: 'korona norweska (NOK)', languages: 'norweski', population: 'ok. 5,6 mln', latlng: [62, 10] },
+  PL: { capital: 'Warszawa', currency: 'złoty polski (PLN)', languages: 'polski', population: 'ok. 37,6 mln', latlng: [52, 20] },
+  PT: { capital: 'Lizbona', currency: 'euro (EUR)', languages: 'portugalski', population: 'ok. 10,6 mln', latlng: [39.5, -8] },
+  SE: { capital: 'Sztokholm', currency: 'korona szwedzka (SEK)', languages: 'szwedzki', population: 'ok. 10,6 mln', latlng: [62, 15] },
+  TR: { capital: 'Ankara', currency: 'lira turecka (TRY)', languages: 'turecki', population: 'ok. 85 mln', latlng: [39, 35] },
+  US: { capital: 'Waszyngton', currency: 'dolar amerykański (USD)', languages: 'angielski', population: 'ok. 335 mln', latlng: [38, -97] }
 };
 
 function renderCountryFacts(facts) {
@@ -185,6 +213,7 @@ function renderCountryFacts(facts) {
 }
 
 async function showCountryInfo(code) {
+  code = normalizeCountryCode(code);
   activeInfoCode = code;
   const trips = visitedCountries.filter(trip => trip.code === code);
   const completed = trips.some(isCompleted);
@@ -207,7 +236,7 @@ async function showCountryInfo(code) {
     const currency = Object.entries(data.currencies || {}).map(([iso, item]) => `${item.name} (${iso})`).join(', ');
     renderCountryFacts({ capital: data.capital?.join(', '), currency, languages: Object.values(data.languages || {}).join(', '), population: Number(data.population).toLocaleString('pl-PL'), latlng: data.latlng });
   } catch {
-    renderCountryFacts(fallbackFacts[code] || { capital: 'Dane wymagają połączenia', currency: 'Dane wymagają połączenia', languages: 'Dane wymagają połączenia' });
+    renderCountryFacts(fallbackFacts[code] || { capital: 'Brak danych offline', currency: 'Brak danych offline', languages: 'Brak danych offline', population: 'Brak danych offline' });
   }
 }
 
@@ -389,12 +418,17 @@ $('#showAllButton').addEventListener('click', () => { document.querySelector('[d
 
 document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => {
   document.querySelectorAll('[data-tab]').forEach(item => item.classList.toggle('active', item === button));
-  const recommended = button.dataset.tab === 'recommendations';
-  document.querySelector('.content-section .mini-label').textContent = recommended ? 'WYBRANE DLA CIEBIE' : 'KOLEKCJA WSPOMNIEŃ';
-  $('.section-heading h2').textContent = recommended ? 'Kierunki warte odkrycia' : 'Twoje ostatnie podróże';
-  renderCards(recommended ? recommendations : visitedCountries);
-  $('.content-section').scrollIntoView({ behavior: 'smooth' });
+  const tab = button.dataset.tab;
+  document.body.dataset.activeTab = tab;
+  const recommended = tab === 'recommendations';
+  if (tab === 'visited' || recommended) {
+    document.querySelector('.content-section .mini-label').textContent = recommended ? 'WYBRANE DLA CIEBIE' : 'KOLEKCJA WSPOMNIEŃ';
+    $('.section-heading h2').textContent = recommended ? 'Kierunki warte odkrycia' : 'Twoje ostatnie podróże';
+    renderCards(recommended ? recommendations : visitedCountries);
+  }
+  document.querySelector(tab === 'map' ? '.scratch-section' : '.content-section').scrollIntoView({ behavior: 'smooth' });
 }));
+document.body.dataset.activeTab = 'map';
 
 renderCards();
 updateStats();
